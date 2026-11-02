@@ -1,0 +1,12 @@
+HabitApp deployed as release "{{ .Release.Name }}".
+
+Check pods:     kubectl get pods
+Check service:  kubectl get svc {{ include "habitapp.fullname" . }}
+{{- if .Values.ingress.enabled }}
+Open:           http://{{ .Values.ingress.host }}{{ .Values.ingress.path }}
+{{- else if eq .Values.service.type "LoadBalancer" }}
+Open:           http://localhost:{{ .Values.service.port }}
+{{- else }}
+Port-forward:   kubectl port-forward svc/{{ include "habitapp.fullname" . }} 8081:{{ .Values.service.port }}
+Then open:      http://localhost:8081
+{{- end }}

@@ -1,0 +1,10 @@
+com\example\habittracker\controller\GlobalExceptionHandler.class
+com\example\habittracker\model\Habit.class
+com\example\habittracker\model\Habit$Frequency.class
+com\example\habittracker\dto\HabitRequest.class
+com\example\habittracker\service\HabitService.class
+com\example\habittracker\service\HabitNotFoundException.class
+com\example\habittracker\repository\HabitRepository.class
+com\example\habittracker\HabitTrackerApplication.class
+com\example\habittracker\controller\HabitController.class
+com\example\habittracker\dto\HabitStats.class

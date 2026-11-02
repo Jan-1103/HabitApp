@@ -1,0 +1,79 @@
+# ---------- Image (from Step 5: your Docker Hub image) ----------
+image:
+  repository: YOURUSER/habitapp     # change to your Docker Hub user, or use --set
+  tag: "1.0"                        # change to your version / git SHA, or use --set
+  pullPolicy: IfNotPresent
+
+replicaCount: 3
+
+# ---------- Rolling update strategy ----------
+rollingUpdate:
+  maxSurge: 1            # one extra pod may be created during an update
+  maxUnavailable: 0      # never remove a pod before a new one is Ready = zero downtime
+minReadySeconds: 5
+revisionHistoryLimit: 5
+terminationGracePeriodSeconds: 30
+
+nameOverride: ""
+fullnameOverride: ""
+
+# ---------- Service ----------
+service:
+  type: LoadBalancer      # Docker Desktop: reachable at http://localhost:<port>
+  port: 8081
+  targetPort: 8080
+
+# ---------- Ingress (optional, off by default) ----------
+ingress:
+  enabled: false
+  className: nginx
+  host: habitapp.local
+  path: /
+  annotations: {}
+
+# ---------- ConfigMap (non-secret configuration) ----------
+config:
+  SPRING_APPLICATION_NAME: habit-tracker
+  SERVER_PORT: "8080"
+  LOGGING_LEVEL_ROOT: INFO
+  SERVER_SHUTDOWN: graceful       # finish in-flight requests before stopping
+  APP_MESSAGE: "version-1"        # change this value to trigger a visible rolling update
+
+# ---------- Secret (never put real values here; pass with --set) ----------
+secret:
+  data:
+    APP_SECRET_KEY: ""    # install with: --set secret.data.APP_SECRET_KEY=yourvalue
+
+# ---------- Resources ----------
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# ---------- Probes ----------
+probes:
+  path: /api/habits
+  readiness:
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  liveness:
+    initialDelaySeconds: 40
+    periodSeconds: 15
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# ---------- Security ----------
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]

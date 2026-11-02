@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: habitapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: habitapp
+  template:
+    metadata:
+      labels:
+        app: habitapp
+    spec:
+      containers:
+        - name: habitapp
+          image: jananiparthasarathy/habitapp:7474604
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always
