@@ -41,10 +41,7 @@ config:
   SERVER_SHUTDOWN: graceful
   APP_MESSAGE: "version-1"
 
-# ---------- Secret ----------
-secret:
-  data:
-    APP_SECRET_KEY: ""
+
 
 # ---------- Resources ----------
 resources:

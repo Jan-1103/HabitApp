@@ -1,2 +1,20 @@
 .git
 *.log
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.yaml
+
+# Local backups
+security-backup/
+step11-files/
+
+# Build output
+target/

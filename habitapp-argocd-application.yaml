@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: habitapp-argocd
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Jan-1103/HabitApp.git
+    targetRevision: main
+    path: habitapp
+    helm:
+      values: |
+        image:
+          repository: jananiparthasarathy/habitapp
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: habitapp-argocd
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

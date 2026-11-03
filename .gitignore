@@ -1,0 +1,22 @@
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.yaml
+
+# Local backups
+security-backup/
+step11-files/
+habitapp-argocd-backup.yaml
+
+# Java build files
+target/
+
+# IDE files
+.idea/
+.vscode/

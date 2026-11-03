@@ -1,53 +1,73 @@
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "habitapp.fullname" . }}
   labels:
     {{- include "habitapp.labels" . | nindent 4 }}
+
 spec:
   replicas: {{ .Values.replicaCount }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   minReadySeconds: {{ .Values.minReadySeconds }}
+
   selector:
     matchLabels:
       {{- include "habitapp.selectorLabels" . | nindent 6 }}
+
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: {{ .Values.rollingUpdate.maxSurge }}
       maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
+
   template:
     metadata:
       labels:
         {{- include "habitapp.selectorLabels" . | nindent 8 }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+
     spec:
+      serviceAccountName: {{ include "habitapp.fullname" . }}-sa
+      automountServiceAccountToken: false
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        seccompProfile:
+          type: RuntimeDefault
+
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+
           securityContext:
             {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            seccompProfile:
+              type: RuntimeDefault
+
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
+
           envFrom:
             - configMapRef:
                 name: {{ include "habitapp.fullname" . }}-config
-            - secretRef:
-                name: {{ include "habitapp.fullname" . }}-secret
+
           lifecycle:
             preStop:
               exec:
                 command: ["sleep", "5"]
+
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+
           readinessProbe:
             httpGet:
               path: {{ .Values.probes.path }}
@@ -56,6 +76,7 @@ spec:
             periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
             timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
             failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+
           livenessProbe:
             httpGet:
               path: {{ .Values.probes.path }}
@@ -64,9 +85,11 @@ spec:
             periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
             timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
             failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+
       volumes:
         - name: tmp
           emptyDir: {}
