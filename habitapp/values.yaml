@@ -2,7 +2,7 @@
 # ---------- Image ----------
 image:
   repository: jananiparthasarathy/habitapp
-  tag: "6-56c65a0"
+  tag: "10-a79de70"
   pullPolicy: IfNotPresent
 
 replicaCount: 3
